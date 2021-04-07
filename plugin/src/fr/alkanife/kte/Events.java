@@ -89,6 +89,8 @@ public class Events implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         //when a player joins
+
+        //delete default message
         event.setJoinMessage(null);
 
         Player player = event.getPlayer();
