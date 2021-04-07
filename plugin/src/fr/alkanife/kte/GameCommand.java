@@ -1,5 +1,8 @@
 package fr.alkanife.kte;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,9 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.UUID;
 
@@ -24,13 +24,14 @@ public class GameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
+
         //if the command sender is not op, return
         if (!commandSender.isOp())
             return true;
 
         //if no arguments, send usage and return
         if (strings.length == 0) {
-            usage(commandSender);
+            sendUsage(commandSender);
             return true;
         }
 
@@ -121,6 +122,7 @@ public class GameCommand implements CommandExecutor {
                 break;
 
             case "food":
+
                 //do nothing if not launched
                 if (!kte.getState().equals(KTE.State.LAUNCHED))
                     break;
@@ -134,9 +136,11 @@ public class GameCommand implements CommandExecutor {
 
                 //broadcast message
                 Bukkit.broadcastMessage("§7les dieux ont pitié de vous, prenez cette nourriture.");
+
                 break;
 
             case "heal":
+
                 //do nothing if not launched
                 if (!kte.getState().equals(KTE.State.LAUNCHED))
                     break;
@@ -148,9 +152,11 @@ public class GameCommand implements CommandExecutor {
 
                 //broadcast message
                 Bukkit.broadcastMessage("§7Tous les joueurs ont été soignés.");
+
                 break;
 
             case "end":
+
                 //do nothing if not launched
                 if (!kte.getState().equals(KTE.State.LAUNCHED))
                     break;
@@ -162,31 +168,40 @@ public class GameCommand implements CommandExecutor {
 
                 //shutdown
                 Bukkit.shutdown();
+
                 break;
 
             case "debug":
+
                 commandSender.sendMessage("§7----------------------------------");
                 commandSender.sendMessage("§7State: §f" + kte.getState().name());
+                commandSender.sendMessage("§f");
 
-                StringBuilder aliveBuilder = new StringBuilder();
+                ComponentBuilder aliveUUIDs = new ComponentBuilder();
 
                 for (UUID uuid : kte.getAlivePlayers())
-                    aliveBuilder.append("§f").append(uuid.toString());
+                    aliveUUIDs.append("§f" + uuid.toString() + "\n");
 
-                commandSender.sendMessage("§7Alive players: [§f" + kte.getAlivePlayers().size() + "§7]");
-                commandSender.sendMessage(aliveBuilder.toString());
+                ComponentBuilder alivePlayers = new ComponentBuilder(kte.getAlivePlayers().size() + " alive players")
+                        .color(ChatColor.YELLOW.asBungee())
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, aliveUUIDs.create()));
+
+                commandSender.spigot().sendMessage(alivePlayers.create());
                 commandSender.sendMessage("§7----------------------------------");
+
                 break;
 
             default:
-                usage(commandSender);
+
+                sendUsage(commandSender);
+
                 break;
         }
 
         return true;
     }
 
-    public void usage(CommandSender commandSender) {
+    public void sendUsage(CommandSender commandSender) {
         commandSender.sendMessage("/kte [go, end, heal, food, debug]");
     }
 }
